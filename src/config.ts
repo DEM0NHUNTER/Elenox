@@ -9,8 +9,6 @@ export const WS_BASE = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') 
 const defaultWs = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host;
 const configuredWs = import.meta.env.VITE_WS_BASE_URL;
 
-export const WS_BASE = configuredWs || defaultWs;
-
 export const PRICING = {
   INPUT_COST_PER_M: 0.075,
   OUTPUT_COST_PER_M: 0.30,
