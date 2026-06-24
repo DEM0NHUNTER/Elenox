@@ -6,7 +6,7 @@ Includes ephemeral SessionStorage flags to persist standalone development modes.
 */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-
+import { API_BASE } from '../config';
 interface UserProfile {
   id: string;
   full_name: string;
@@ -28,6 +28,34 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }): React.JSX.Element {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const syncSessionIdentity = async (): Promise<void> => {
+    try {
+      // Explicitly prepend API_BASE to route traffic down the Ngrok tunnel
+      const res = await fetch(`${API_BASE}/api/users`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+
+      if (res.ok) {
+        const directoryData = await res.json();
+        if (Array.isArray(directoryData) && directoryData.length > 0) {
+          const matchedIdentity = directoryData[0];
+          setState({
+            user: matchedIdentity,
+            isAuthenticated: true,
+            isLoading: false
+          });
+          return;
+        }
+      }
+      throw new Error("Handshake invalid");
+    } catch {
+      setState({ user: null, isAuthenticated: false, isLoading: false });
+    }
+  };
+
 
   useEffect(() => {
     const verifyIdentityLease = async () => {
