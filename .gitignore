@@ -1,0 +1,26 @@
+# ── Node & Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# ── Build Outputs
+dist/
+dist-ssr/
+build/
+*.local
+
+# ── Environment Variables
+.env
+.env.*
+!.env.example
+
+# ── Logs & Debugging
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── IDE & OS
+.vscode/
+.idea/
+.DS_Store
