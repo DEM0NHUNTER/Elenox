@@ -36,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }): React.JSX.E
   const syncSessionIdentity = async (): Promise<void> => {
     setIsLoading(true);
     try {
+      console.log("ROUTING TARGET:", API_BASE);
       // Explicitly prepend API_BASE to route traffic down the remote tunnel
       const response = await fetch(`${API_BASE}/api/auth/session`, {
         method: 'GET',
