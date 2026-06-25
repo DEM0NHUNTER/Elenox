@@ -45,7 +45,6 @@ export default function Login(): React.JSX.Element {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'ngrok-skip-browser-warning': 'true'
         },
         body: formData.toString(),
         credentials: 'include',

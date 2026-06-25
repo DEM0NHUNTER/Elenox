@@ -43,7 +43,6 @@ export function AuthProvider({ children }: { children: ReactNode }): React.JSX.E
         headers:
         {
         'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true' // CRITICAL: Bypasses the HTML intercept screen
         },
         credentials: 'include'
       });
