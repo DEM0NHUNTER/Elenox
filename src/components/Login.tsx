@@ -2,7 +2,7 @@
 Core application gateway login component.
 Authenticates client handshakes and handles state shakes during interface rejections.
 Explicitly routes to the secure /dashboard upon successful verification.
-Updated: Migrated to semantic Tailwind theme classes for full palette integration.
+Updated: Integrates API_BASE routing and tunnel security bypass headers for decoupled Vercel deployments.
 */
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { toast } from 'react-hot-toast';
 import { Eye, EyeOff, Lock, Terminal, Activity, ChevronLeft, Loader2, KeyRound } from 'lucide-react';
 import { useTextScramble } from '../hooks/useTextScramble';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE } from '../config'; // Injected the routing matrix
 
 export default function Login(): React.JSX.Element {
   const navigate = useNavigate();
@@ -39,9 +40,13 @@ export default function Login(): React.JSX.Element {
       formData.append('email', email);
       formData.append('password', password);
 
-      const res = await fetch('/api/auth/login', {
+      // Targeted Edit: Route through API_BASE and apply the Ngrok HTML bypass header
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: formData.toString(),
         credentials: 'include',
       });
