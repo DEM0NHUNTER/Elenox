@@ -39,7 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }): React.JSX.E
       // Explicitly prepend API_BASE to route traffic down the remote tunnel
       const response = await fetch(`${API_BASE}/api/auth/session`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers:
+        {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true' // CRITICAL: Bypasses the HTML intercept screen
+        },
         credentials: 'include'
       });
 
