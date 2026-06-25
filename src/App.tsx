@@ -1,6 +1,7 @@
 /**
  * Root Application router wrapper.
  * Organizes path structures and isolates active layouts using a strict authentication boundary.
+ * UI-ONLY MOCK MODE: Hardcoded to 'SAAS' to expose landing and registration trees without a backend.
  */
 import React, { useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
@@ -48,10 +49,11 @@ function RequireAuth({ children }: RequireAuthProps): React.JSX.Element {
 
 function AppRouter(): React.JSX.Element {
   const apiFetch = useApi();
-  const [deploymentMode, setDeploymentMode] = useState<'SAAS' | 'ENTERPRISE' | null>(null);
+  // TARGETED EDIT: Default to 'SAAS' instead of null to immediately reveal all pages offline
+  const [deploymentMode, setDeploymentMode] = useState<'SAAS' | 'ENTERPRISE' | null>('SAAS');
 
   useEffect(() => {
-    // Fetch the architectural mode from the backend on initial load
+    // Left intact for subsequent wiring, but currently overwritten by the static SAAS state allocation
     apiFetch('/api/system/mode')
       .then((res) => {
         if (!res.ok) throw new Error('System configuration unreachable');
@@ -60,13 +62,11 @@ function AppRouter(): React.JSX.Element {
       .then((data: { mode: string; version: string }) => {
         if (data.mode === 'SAAS' || data.mode === 'ENTERPRISE') {
           setDeploymentMode(data.mode);
-        } else {
-          setDeploymentMode('ENTERPRISE');
         }
       })
       .catch(() => {
-        // Fail-safe security state: Default to closed Enterprise mode if network or backend fails
-        setDeploymentMode('ENTERPRISE');
+        // UI Mock Override: Do not fall back to strict ENTERPRISE mode while backend is decoupled
+        setDeploymentMode('SAAS');
       });
   }, [apiFetch]);
 
