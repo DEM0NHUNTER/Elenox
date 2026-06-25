@@ -1,8 +1,7 @@
 /**
 Core application gateway login component.
-Authenticates client handshakes and handles state shakes during interface rejections.
-Explicitly routes to the secure /dashboard upon successful verification.
-Updated: Integrates API_BASE routing and tunnel security bypass headers for decoupled Vercel deployments.
+Currently operating in UI-ONLY MOCK MODE. Network requests are bypassed,
+and the local offline sandbox is injected to allow uninterrupted UI/UX development.
 */
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -10,7 +9,6 @@ import { toast } from 'react-hot-toast';
 import { Eye, EyeOff, Lock, Terminal, Activity, ChevronLeft, Loader2, KeyRound } from 'lucide-react';
 import { useTextScramble } from '../hooks/useTextScramble';
 import { useAuth } from '../contexts/AuthContext';
-import { API_BASE } from '../config'; // Injected the routing matrix
 
 export default function Login(): React.JSX.Element {
   const navigate = useNavigate();
@@ -35,17 +33,40 @@ export default function Login(): React.JSX.Element {
     if (!email || !password) return;
     setLoading(true);
     setErrorMsg('');
+
     try {
+      // =====================================================================
+      // ── UI-ONLY MOCK BYPASS
+      // Skips the backend network request and forces the AuthContext into
+      // its offline sandbox mode. You can type anything into the login form.
+      // =====================================================================
+      setTimeout(() => {
+        login({
+          id: 'usr-dev-001', // CRITICAL: This exact ID triggers the offline sandbox in AuthContext
+          full_name: 'Lead UI Engineer',
+          email: email || 'dev@axiosigil.internal',
+          role: 'admin',
+          company_id: 'SIGIL_SANDBOX_DEV',
+          is_developer: true,
+          dev_mode_active: true
+        });
+
+        toast.success('UI Mock Session Established.', {
+          style: { background: '#6e56cf', color: '#FFFFFF' },
+          icon: '🎨',
+        });
+
+        navigate('/dashboard', { replace: true });
+      }, 600); // Artificial delay so you can still see the loading button animation
+
+      /* --- ORIGINAL NETWORK CODE (Commented out for UI dev mode) ---
       const formData = new URLSearchParams();
       formData.append('email', email);
       formData.append('password', password);
 
-      // Targeted Edit: Route through API_BASE and apply the Ngrok HTML bypass header
       const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString(),
         credentials: 'include',
       });
@@ -62,11 +83,14 @@ export default function Login(): React.JSX.Element {
         setIsShaking(true);
         setErrorMsg(data.detail || 'INVALID_SIGNATURE: Master Orchestrator rejected handshake.');
       }
+      -------------------------------------------------------------- */
+
     } catch {
       setIsShaking(true);
-      setErrorMsg('NETWORK_FAULT: Telemetry endpoint unreachable.');
+      setErrorMsg('NETWORK_FAULT: UI Mock Failed.');
     } finally {
-      setLoading(false);
+      // setLoading(false) is handled by the redirect usually, but placed here just in case
+      setTimeout(() => setLoading(false), 600);
     }
   };
 
@@ -94,9 +118,9 @@ export default function Login(): React.JSX.Element {
             <div className="mx-auto w-9 h-9 rounded-lg border border-primary/20 bg-primary/5 flex items-center justify-center mb-2 shadow-[0_0_15px_rgba(110,86,207,0.1)]">
               <Lock className="w-4 h-4 text-primary" />
             </div>
-            <h3 className="font-bold text-card-foreground uppercase tracking-widest text-sm">Login Portal</h3>
+            <h3 className="font-bold text-card-foreground uppercase tracking-widest text-sm">UI Design Mode</h3>
             <p className="text-[9px] text-muted-foreground uppercase tracking-widest flex items-center justify-center gap-1.5 mt-1">
-              <Activity className="w-3 h-3 text-primary animate-pulse" /> Active Security Handshake
+              <Activity className="w-3 h-3 text-primary animate-pulse" /> Backend Disconnected
             </p>
           </div>
 
@@ -111,7 +135,7 @@ export default function Login(): React.JSX.Element {
                   value={email}
                   disabled={loading}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ADMIN@AXIOSIGIL.INTERNAL"
+                  placeholder="ANY@EMAIL.WORKS"
                   className="bg-transparent text-foreground border-none outline-none tracking-wide placeholder:text-muted-foreground w-full focus:ring-0 uppercase text-[11px]"
                   autoComplete="email"
                 />
@@ -128,7 +152,7 @@ export default function Login(): React.JSX.Element {
                   value={password}
                   disabled={loading}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••••••"
+                  placeholder="TYPE ANYTHING"
                   className="bg-transparent text-foreground border-none outline-none tracking-widest placeholder:text-muted-foreground w-full focus:ring-0 text-[11px]"
                   autoComplete="current-password"
                 />
@@ -157,10 +181,10 @@ export default function Login(): React.JSX.Element {
               {loading ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Authenticating...</span>
+                  <span>Loading UI...</span>
                 </>
               ) : (
-                <span>Login</span>
+                <span>Enter Dashboard</span>
               )}
             </button>
           </form>
